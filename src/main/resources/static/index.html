@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Java Compiler</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🖥️ Java Playground</h1>
+            <div class="toolbar">
+                <button class="run-button" onclick="compileCode()">
+                    ▶ Run (Ctrl+Enter)
+                </button>
+            </div>
+        </header>
+
+        <div class="editor-container">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <textarea id="codeEditor" spellcheck="false">public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello World!");
+    }
+}</textarea>
+        </div>
+
+        <div class="output-container">
+            <div class="output-header">
+                <h3>📤 Output</h3>
+                <button class="clear-button" onclick="clearOutput()">🗑️ Clear</button>
+            </div>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
