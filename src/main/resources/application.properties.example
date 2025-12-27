@@ -1,5 +1,6 @@
-spring.application.name=Java-PlayGround
+spring.application.name=Java-Play- ground
 
+# Database (use env var DB_PASSWORD locally or in CI)
 spring.datasource.url=jdbc:mysql://localhost:3306/javaplayground?createDatabaseIfNotExist=true
 spring.datasource.username=root
 spring.datasource.password=${DB_PASSWORD}
@@ -9,11 +10,13 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
+# OAuth2 placeholders - set real values via env vars
 spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID}
 spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET}
 spring.security.oauth2.client.registration.google.scope=email,profile
 
 spring.security.oauth2.client.registration.github.client-id=${GITHUB_CLIENT_ID}
 spring.security.oauth2.client.registration.github.client-secret=${GITHUB_CLIENT_SECRET}
-
 spring.security.oauth2.client.registration.github.scope=user:email
+
+# Copy this file to application.properties and fill values or set env vars.

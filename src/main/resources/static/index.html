@@ -1,41 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Java Compiler</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1>🖥️ Java Playground</h1>
-            <div class="toolbar">
-                <button class="run-button" onclick="compileCode()">
-                    ▶ Run (Ctrl+Enter)
-                </button>
-            </div>
-        </header>
+    <title>Java Playground</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script>
+        fetch("/user")
+            .then(res => res.json())
+            .then(data => {
+                const loginBtn = document.getElementById('loginBtn');
+                const userProfile = document.getElementById('userProfile');
+                const userName = document.getElementById('userName');
+                const userAvatar = document.getElementById('userAvatar');
 
-        <div class="editor-container">
-            <div class="line-numbers" id="lineNumbers"></div>
-            <textarea id="codeEditor" spellcheck="false">public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
-    }
-}</textarea>
+                if (data.loggedIn) {
+                    // IF LOGGED IN: Hide Login, Show Profile
+                    if (loginBtn) loginBtn.style.display = 'none';
+
+                    if (userProfile) {
+                        userProfile.style.display = 'flex';
+                        userName.textContent = data.name;
+                        
+                        if (data.avatar) {
+                            userAvatar.src = data.avatar;
+                        } else {
+                            userAvatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.name) + "&background=bd93f9&color=fff";
+                        }
+                        
+                        userAvatar.onerror = function() {
+                            this.onerror = null; 
+                            this.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.name) + "&background=bd93f9&color=fff";
+                        };
+                    }
+                } 
+                // IF GUEST: Do nothing. 
+                // The Login button is already visible by default in the HTML below.
+            })
+            .catch(err => {
+                console.log("Auth check failed (Guest Mode)", err);
+                // On error, we also do nothing, leaving the Login button visible.
+            });
+    </script>
+</head>
+
+<body>
+
+    <header class="top-bar">
+        <div class="logo">
+            <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            <span class="app-title">Java Playground</span>
         </div>
 
-        <div class="output-container">
-            <div class="output-header">
-                <h3>📤 Output</h3>
-                <button class="clear-button" onclick="clearOutput()">🗑️ Clear</button>
+        <div class="controls">
+            <button id="runBtn">
+                <span class="btn-icon">▶</span> Run
+            </button>
+            
+            <button id="copyBtn">
+                <svg class="btn-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy
+            </button>
+
+            <select id="layoutSelect">
+                <option value="right">Output Right</option>
+                <option value="bottom">Output Bottom</option>
+                <option value="left">Output Left</option>
+                <option value="top">Output Top</option>
+            </select>
+
+            <button id="loginBtn" class="login-btn" onclick="window.location.href='/login'" style="display: block;">Login</button>
+
+            <div id="userProfile" class="user-profile" style="display: none;">
+                <img id="userAvatar" class="user-avatar" src="" alt="User" referrerpolicy="no-referrer">
+                <span id="userName" class="user-name">User</span>
+                <div class="logout-menu">
+                    <a href="/logout">Logout</a>
+                </div>
             </div>
-            <pre id="output"></pre>
+        </div>
+    </header>
+
+    <div id="container" class="layout-right horizontal">
+        <div id="editor" class="pane editor-pane"></div>
+        <div id="splitter" class="splitter splitter-vertical" title="Drag to resize"></div>
+        <div class="pane io-pane">
+            <div class="io-section input-section">
+                <div class="io-header"><h3>Input (stdin)</h3></div>
+                <textarea id="inputContent" placeholder="Enter input here..."></textarea>
+            </div>
+            <div class="io-section output-section">
+                <div class="io-header"><h3>Output</h3></div>
+                <pre id="outputContent"></pre>
+            </div>
         </div>
     </div>
 
-    <script src="/js/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/hint/java-hint.min.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
